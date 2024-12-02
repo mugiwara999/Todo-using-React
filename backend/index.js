@@ -1,4 +1,5 @@
 import { createTodo, updateTodo } from "./types";
+import { todo } from "./db.js"
 const express = require("express");
 const app = express();
 
@@ -10,11 +11,11 @@ app.use(express.json())
 //description: string;
 //}
 
-app.post("/todo", (req, res) => {
+app.post("/todo", async (req, res) => {
 
-  const todo = req.todo;
-  const parsedTodo = createTodo.safeParse(todo);
-  if (!parsedTodo.success) {
+  const createPayLoad = req.todo;
+  const parsedPayLoad = createTodo.safeParse(createPayLoad);
+  if (!parsedPayLoad.success) {
     res.status(411).json({
       msg: "you sent the wrong inputs",
     })
@@ -22,22 +23,46 @@ app.post("/todo", (req, res) => {
     return;
   }
 
+  await todo.create({
+    title: createPayLoad.title,
+    description: createPayLoad.description,
+    completed: false
+  })
+
+  res.json({
+    msg: "Todo created"
+  })
+
+
 
 })
 
-app.get("/todos", (req, res) => {
+app.get("/todos", async (req, res) => {
+
+  const todos = await todo.find();
 
 })
 
-app.put("/done", (req, res) => {
 
-  const id = req.id;
-  const parsedId = updateTodo.safeParse(id);
-  if (!parsedId.success) {
+app.put("/done", async (req, res) => {
+
+  const updatePayLoad = req.body;
+  const parsedPayLoad = updateTodo.safeParse(updatePayLoad);
+  if (!parsedPayLoad.success) {
     res.status(411).json({
       msg: "select the correct one"
     })
   }
+
+  await todo.update({
+    _id: req.body.id
+  }, {
+    completed: true
+  })
+
+  res.json({
+    msg: "Todo marked as done"
+  })
 })
 
 app.listen(3000);
