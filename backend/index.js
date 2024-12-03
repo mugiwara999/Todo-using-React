@@ -1,9 +1,11 @@
-import { createTodo, updateTodo } from "./types";
+import { createTodo, updateTodo } from "./types.js";
 import { todo } from "./db.js"
-const express = require("express");
+import express from 'express';
+import cors from 'cors';
 const app = express();
 
 app.use(express.json())
+app.use(cors())
 
 
 //body {
@@ -13,7 +15,9 @@ app.use(express.json())
 
 app.post("/todo", async (req, res) => {
 
-  const createPayLoad = req.todo;
+  // console.log(req)
+  const createPayLoad = req.body;
+  console.log(createPayLoad)
   const parsedPayLoad = createTodo.safeParse(createPayLoad);
   if (!parsedPayLoad.success) {
     res.status(411).json({
@@ -37,9 +41,16 @@ app.post("/todo", async (req, res) => {
 
 })
 
+
+app.get("/", (req, res) => {
+  res.send("fuck you")
+})
+
+
 app.get("/todos", async (req, res) => {
 
   const todos = await todo.find();
+  res.json(todos);
 
 })
 
@@ -66,3 +77,4 @@ app.put("/done", async (req, res) => {
 })
 
 app.listen(3000);
+
